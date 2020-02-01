@@ -3,4 +3,7 @@
     <string name="mainmenu_recents">Recents</string>
     <string name="mainmenu_home">Home</string>
     <string name="mainmenu_settings">Settings</string>
+    <string name="recyclerview_demoName">Tamzid Hasan Nahid</string>
+    <string name="recyclerview_demoTime">10:49 PM</string>
+    <string name="recyclerView_demoDate">03-02-2020</string>
 </resources>

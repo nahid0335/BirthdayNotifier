@@ -1,18 +1,27 @@
 package com.example.birthdaynotifier;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.widget.Toast;
 
+import com.example.birthdaynotifier.ViewModel.BirthDateViewModel;
 import com.example.birthdaynotifier.fragments.HomeFragment;
 import com.example.birthdaynotifier.fragments.RecentsFragment;
 import com.example.birthdaynotifier.fragments.SettingsFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity {
+
+    private BirthDateViewModel birthDateViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +37,15 @@ public class MainActivity extends AppCompatActivity {
             getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout_mainActivity_home,
                     new HomeFragment()).commit();
         }
+
+        birthDateViewModel = ViewModelProviders.of(this).get(BirthDateViewModel.class);
+        birthDateViewModel.getAllBirthDate().observe(this, new Observer<List<BirthDate>>() {
+            @Override
+            public void onChanged(@Nullable List<BirthDate> birthDates) {
+                //update RecyclerView
+                Toast.makeText(MainActivity.this, "onChanged", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private BottomNavigationView.OnNavigationItemSelectedListener navListener =

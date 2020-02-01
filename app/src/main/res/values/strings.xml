@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">Birthday Notifier</string>
+    <string name="mainmenu_recents">Recents</string>
+    <string name="mainmenu_home">Home</string>
+    <string name="mainmenu_settings">Settings</string>
 </resources>

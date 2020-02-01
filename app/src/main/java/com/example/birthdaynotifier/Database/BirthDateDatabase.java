@@ -13,7 +13,7 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
-@Database(entities = {BirthDate.class}, version = 1)
+@Database(entities = {BirthDate.class}, version = 2)
 public abstract class BirthDateDatabase extends RoomDatabase {
 
     private static BirthDateDatabase instance;

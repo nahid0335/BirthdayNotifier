@@ -5,6 +5,11 @@
     <string name="mainmenu_settings">Settings</string>
     <string name="recyclerview_demoName">Tamzid Hasan Nahid</string>
     <string name="recyclerview_demoTime">10:49 PM</string>
-    <string name="recyclerView_demoDate">03-02-2020</string>
+    <string name="recyclerView_demoDate">03-02</string>
     <string name="mainHome_sortTitle">Sort</string>
+    <string name="addNew_nameFieldHint">Name</string>
+    <string name="addNew_timeTitle">Select a Time :</string>
+    <string name="addNew_DateTitle">Select a Date :</string>
+    <string name="menuAddNew_save">Save</string>
+    <string name="recyclerView_dateTitle" >"Date : "</string>
 </resources>

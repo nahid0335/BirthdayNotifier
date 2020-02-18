@@ -8,8 +8,8 @@
 
     <ImageView
         android:id="@+id/imageView_mainHome_add"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:layout_marginEnd="10dp"
         android:elevation="6dp"
         app:layout_constraintBottom_toBottomOf="@+id/cardView"
@@ -19,9 +19,9 @@
 
     <ImageView
         android:id="@+id/imageView_mainHome_search"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:layout_marginEnd="5dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="10dp"
         android:elevation="6dp"
         app:layout_constraintBottom_toBottomOf="@+id/cardView"
         app:layout_constraintEnd_toStartOf="@+id/imageView_mainHome_add"
@@ -60,7 +60,7 @@
     <androidx.cardview.widget.CardView
         android:id="@+id/cardView"
         android:layout_width="0dp"
-        android:layout_height="70dp"
+        android:layout_height="60dp"
         android:layout_marginStart="20dp"
         android:layout_marginTop="10dp"
         android:layout_marginEnd="20dp"

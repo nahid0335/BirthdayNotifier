@@ -13,7 +13,7 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
-@Database(entities = {BirthDate.class}, version = 2)
+@Database(entities = {BirthDate.class}, version = 3)
 public abstract class BirthDateDatabase extends RoomDatabase {
 
     private static BirthDateDatabase instance;
@@ -48,9 +48,6 @@ public abstract class BirthDateDatabase extends RoomDatabase {
 
         @Override
         protected Void doInBackground(Void... voids) {
-            birthDateDao.insert(new BirthDate("Title 1", "10:40 PM", "12-02-2020",true));
-            birthDateDao.insert(new BirthDate("Title 2", "10:41 PM", "01-02-2020",false));
-            birthDateDao.insert(new BirthDate("Title 3", "10:42 PM", "01-01-2020",true));
             return null;
         }
     }

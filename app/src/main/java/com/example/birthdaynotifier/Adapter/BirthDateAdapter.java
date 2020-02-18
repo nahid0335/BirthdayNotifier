@@ -33,11 +33,12 @@ public class BirthDateAdapter extends RecyclerView.Adapter<BirthDateAdapter.Birt
         BirthDate currentBirthDate = birthDates.get(position);
         holder.nametxt.setText(currentBirthDate.getName());
         holder.timetxt.setText(currentBirthDate.getTime());
-        holder.datetxt.setText(currentBirthDate.getDate());
+        String date = (currentBirthDate.getDay())+"-"+(currentBirthDate.getMonth());
+        holder.datetxt.setText(date);
         if(currentBirthDate.getNotification()){
             holder.notificationimg.setBackgroundResource(R.drawable.ic_notifications_black_24dp);
         }else{
-            holder.notificationimg.setBackgroundResource(R.drawable.ic_notifications_off_black_24dp);
+            holder.notificationimg.setBackgroundResource(R.drawable.ic_notifications_off_shadow_24dp);
         }
     }
 

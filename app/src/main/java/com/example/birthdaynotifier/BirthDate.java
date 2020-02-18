@@ -8,19 +8,17 @@ public class BirthDate {
 
     @PrimaryKey(autoGenerate = true)
     private int id;
-
     private String name;
-
     private String time;
-
-    private String date;
-
+    private int day;
+    private int month;
     private Boolean notification;
 
-    public BirthDate(String name, String time, String date, Boolean notification) {
+    public BirthDate(String name, String time, int day,int month, Boolean notification) {
         this.name = name;
         this.time = time;
-        this.date = date;
+        this.day = day;
+        this.month = month;
         this.notification = notification;
     }
 
@@ -40,9 +38,11 @@ public class BirthDate {
         return time;
     }
 
-    public String getDate() {
-        return date;
+    public int getDay() {
+        return day;
     }
+
+    public int getMonth() { return month; }
 
     public Boolean getNotification() {
         return notification;

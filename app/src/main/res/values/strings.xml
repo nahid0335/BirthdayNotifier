@@ -6,4 +6,5 @@
     <string name="recyclerview_demoName">Tamzid Hasan Nahid</string>
     <string name="recyclerview_demoTime">10:49 PM</string>
     <string name="recyclerView_demoDate">03-02-2020</string>
+    <string name="mainHome_sortTitle">Sort</string>
 </resources>

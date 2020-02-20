@@ -137,12 +137,15 @@ public class AddActivity extends AppCompatActivity {
         String usernameInput = nameTextInputLayout.getEditText().getText().toString().trim();
 
         if (usernameInput.isEmpty()) {
-            nameTextInputLayout.setError("Field can't be empty");
+            nameTextInputLayout.setError("Field can't be empty !!");
             return false;
         } else if (usernameInput.length() > 15) {
-            nameTextInputLayout.setError("Username too long");
+            nameTextInputLayout.setError("Name is too long !!");
             return false;
-        } else {
+        } else if (!((usernameInput.charAt(0)>='A'&& usernameInput.charAt(0)<='Z')||(usernameInput.charAt(0)>='a'&& usernameInput.charAt(0)<='z'))) {
+            nameTextInputLayout.setError("Name has to start with alphabet !!");
+            return false;
+        }else {
             nameTextInputLayout.setError(null);
             return true;
         }

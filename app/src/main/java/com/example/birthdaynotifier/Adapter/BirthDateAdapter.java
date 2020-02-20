@@ -40,6 +40,87 @@ public class BirthDateAdapter extends RecyclerView.Adapter<BirthDateAdapter.Birt
         }else{
             holder.notificationimg.setBackgroundResource(R.drawable.ic_notifications_off_shadow_24dp);
         }
+        String name = currentBirthDate.getName().toUpperCase();
+        switch (name.charAt(0)){
+            case 'A':
+                holder.firstlatterimg.setBackgroundResource(R.drawable.ic_a);
+                break;
+            case 'B':
+                holder.firstlatterimg.setBackgroundResource(R.drawable.ic_b);
+                break;
+            case 'C':
+                holder.firstlatterimg.setBackgroundResource(R.drawable.ic_c);
+                break;
+            case 'D':
+                holder.firstlatterimg.setBackgroundResource(R.drawable.ic_d);
+                break;
+            case 'E':
+                holder.firstlatterimg.setBackgroundResource(R.drawable.ic_e);
+                break;
+            case 'F':
+                holder.firstlatterimg.setBackgroundResource(R.drawable.ic_f);
+                break;
+            case 'G':
+                holder.firstlatterimg.setBackgroundResource(R.drawable.ic_g);
+                break;
+            case 'H':
+                holder.firstlatterimg.setBackgroundResource(R.drawable.ic_h);
+                break;
+            case 'I':
+                holder.firstlatterimg.setBackgroundResource(R.drawable.ic_i);
+                break;
+            case 'J':
+                holder.firstlatterimg.setBackgroundResource(R.drawable.ic_j);
+                break;
+            case 'K':
+                holder.firstlatterimg.setBackgroundResource(R.drawable.ic_k);
+                break;
+            case 'L':
+                holder.firstlatterimg.setBackgroundResource(R.drawable.ic_l);
+                break;
+            case 'M':
+                holder.firstlatterimg.setBackgroundResource(R.drawable.ic_m);
+                break;
+            case 'N':
+                holder.firstlatterimg.setBackgroundResource(R.drawable.ic_n);
+                break;
+            case 'O':
+                holder.firstlatterimg.setBackgroundResource(R.drawable.ic_o);
+                break;
+            case 'P':
+                holder.firstlatterimg.setBackgroundResource(R.drawable.ic_p);
+                break;
+            case 'Q':
+                holder.firstlatterimg.setBackgroundResource(R.drawable.ic_q);
+                break;
+            case 'R':
+                holder.firstlatterimg.setBackgroundResource(R.drawable.ic_r);
+                break;
+            case 'S':
+                holder.firstlatterimg.setBackgroundResource(R.drawable.ic_s);
+                break;
+            case 'T':
+                holder.firstlatterimg.setBackgroundResource(R.drawable.ic_t);
+                break;
+            case 'U':
+                holder.firstlatterimg.setBackgroundResource(R.drawable.ic_u);
+                break;
+            case 'V':
+                holder.firstlatterimg.setBackgroundResource(R.drawable.ic_v);
+                break;
+            case 'W':
+                holder.firstlatterimg.setBackgroundResource(R.drawable.ic_w);
+                break;
+            case 'X':
+                holder.firstlatterimg.setBackgroundResource(R.drawable.ic_x);
+                break;
+            case 'Y':
+                holder.firstlatterimg.setBackgroundResource(R.drawable.ic_y);
+                break;
+            case 'Z':
+                holder.firstlatterimg.setBackgroundResource(R.drawable.ic_z);
+                break;
+        }
     }
 
     @Override

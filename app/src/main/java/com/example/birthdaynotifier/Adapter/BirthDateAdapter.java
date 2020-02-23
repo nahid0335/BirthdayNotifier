@@ -133,6 +133,10 @@ public class BirthDateAdapter extends RecyclerView.Adapter<BirthDateAdapter.Birt
         notifyDataSetChanged();
     }
 
+    public BirthDate getBirthDateAt(int position) {
+        return birthDates.get(position);
+    }
+
     class BirthDateHolder extends RecyclerView.ViewHolder{
         private TextView nametxt;
         private TextView timetxt;

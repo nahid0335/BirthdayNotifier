@@ -3,6 +3,7 @@ package com.example.birthdaynotifier.Adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -18,7 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class BirthDateAdapter extends RecyclerView.Adapter<BirthDateAdapter.BirthDateHolder> {
     private List<BirthDate> birthDates = new ArrayList<>();
-
+    private OnItemClickListener listener;
 
     @NonNull
     @Override
@@ -151,6 +152,26 @@ public class BirthDateAdapter extends RecyclerView.Adapter<BirthDateAdapter.Birt
             datetxt = itemView.findViewById(R.id.textView_recyclerViewHome_Date);
             notificationimg = itemView.findViewById(R.id.imageView_recyclerViewHome_notificationIcon);
             firstlatterimg = itemView.findViewById(R.id.imageView_recyclerViewHome_firstLatter);
+
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    int position = getAdapterPosition();
+                    if(listener != null && position != RecyclerView.NO_POSITION) {
+                        listener.onItemClick(birthDates.get(position));
+                    }
+                }
+            });
         }
+    }
+
+
+    public interface OnItemClickListener {
+        void onItemClick(BirthDate birthDate);
+    }
+
+    public void setOnItemClickListener(OnItemClickListener listener){
+        this.listener = listener;
     }
 }

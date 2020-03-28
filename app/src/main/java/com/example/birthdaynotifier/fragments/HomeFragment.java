@@ -10,7 +10,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.birthdaynotifier.Adapter.BirthDateAdapter;
-import com.example.birthdaynotifier.AddActivity;
+import com.example.birthdaynotifier.AddEditActivity;
 import com.example.birthdaynotifier.BirthDate;
 import com.example.birthdaynotifier.R;
 import com.example.birthdaynotifier.ViewModel.BirthDateViewModel;
@@ -32,6 +32,7 @@ import static android.app.Activity.RESULT_OK;
 public class HomeFragment extends Fragment {
     private BirthDateViewModel birthDateViewModel;
     public static final int ADD_NEW_REQUEST = 1;
+    public static final int EDIT_NEW_REQUEST = 2;
 
     @Nullable
     @Override
@@ -42,7 +43,7 @@ public class HomeFragment extends Fragment {
         addNewItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getActivity(), AddActivity.class);
+                Intent intent = new Intent(getActivity(), AddEditActivity.class);
                 startActivityForResult(intent, ADD_NEW_REQUEST);
             }
         });
@@ -97,6 +98,21 @@ public class HomeFragment extends Fragment {
         }).attachToRecyclerView(recyclerView);
 
 
+        adapter.setOnItemClickListener(new BirthDateAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(BirthDate birthDate) {
+                Intent intent = new Intent(getActivity(), AddEditActivity.class);
+
+                intent.putExtra(AddEditActivity.EXTRA_ID, birthDate.getId());
+                intent.putExtra(AddEditActivity.EXTRA_NAME, birthDate.getName());
+                intent.putExtra(AddEditActivity.EXTRA_TIME, birthDate.getTime());
+                intent.putExtra(AddEditActivity.EXTRA_DAY, birthDate.getDay());
+                intent.putExtra(AddEditActivity.EXTRA_MONTH, birthDate.getMonth());
+                intent.putExtra(AddEditActivity.EXTRA_NOTIFICATION, birthDate.getNotification());
+                startActivityForResult(intent, EDIT_NEW_REQUEST);
+            }
+        });
+
 
         return rootview;
     }
@@ -106,16 +122,34 @@ public class HomeFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == ADD_NEW_REQUEST && resultCode == RESULT_OK) {
-            String name = data.getStringExtra(AddActivity.EXTRA_NAME);
-            String time = data.getStringExtra(AddActivity.EXTRA_TIME);
-            int day = data.getIntExtra(AddActivity.EXTRA_DAY, 1);
-            int month = data.getIntExtra(AddActivity.EXTRA_MONTH, 1);
-            boolean notificatiion = data.getBooleanExtra(AddActivity.EXTRA_NOTIFICATION,true);
+            String name = data.getStringExtra(AddEditActivity.EXTRA_NAME);
+            String time = data.getStringExtra(AddEditActivity.EXTRA_TIME);
+            int day = data.getIntExtra(AddEditActivity.EXTRA_DAY, 1);
+            int month = data.getIntExtra(AddEditActivity.EXTRA_MONTH, 1);
+            boolean notificatiion = data.getBooleanExtra(AddEditActivity.EXTRA_NOTIFICATION,true);
 
             BirthDate birthDate = new BirthDate(name, time, day, month, notificatiion);
             birthDateViewModel.insert(birthDate);
 
             Toast.makeText(getContext(), "BirthDay saved", Toast.LENGTH_SHORT).show();
+        } else if (requestCode == EDIT_NEW_REQUEST && resultCode == RESULT_OK){
+            int id = data.getIntExtra(AddEditActivity.EXTRA_ID, -1);
+
+            if (id == -1) {
+                Toast.makeText(getContext(), "BirthDate can't be updated", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            String name = data.getStringExtra(AddEditActivity.EXTRA_NAME);
+            String time = data.getStringExtra(AddEditActivity.EXTRA_TIME);
+            int day = data.getIntExtra(AddEditActivity.EXTRA_DAY, 1);
+            int month = data.getIntExtra(AddEditActivity.EXTRA_MONTH, 1);
+            boolean notificatiion = data.getBooleanExtra(AddEditActivity.EXTRA_NOTIFICATION,true);
+
+            BirthDate birthDate = new BirthDate(name, time, day, month, notificatiion);
+            birthDate.setId(id);
+            birthDateViewModel.update(birthDate);
+
+            Toast.makeText(getContext(), "BirthDay updated", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(getContext(), "Birthday not saved", Toast.LENGTH_SHORT).show();
         }

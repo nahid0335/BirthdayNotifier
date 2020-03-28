@@ -20,10 +20,17 @@ import android.widget.Toast;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
 import static android.content.Intent.EXTRA_TITLE;
 
-public class AddActivity extends AppCompatActivity {
+public class AddEditActivity extends AppCompatActivity {
 
+    public static final String EXTRA_ID =
+            "privateKeyofData.id";
     public static final String EXTRA_NAME =
             "privateKeyofData.name";
     public static final String EXTRA_TIME =
@@ -36,6 +43,7 @@ public class AddActivity extends AppCompatActivity {
             "privateKeyofData.notification";
 
     private TextInputLayout nameTextInputLayout;
+    private TextInputEditText nameTextInputEditText;
     private TimePicker timePicker;
     private NumberPicker dayNumberPicker,monthNumberPicker;
     private RadioGroup notificationRadioGroup;
@@ -55,6 +63,7 @@ public class AddActivity extends AppCompatActivity {
         actionbar.setHomeAsUpIndicator ( R.drawable.ic_close_white_24dp );
 
         nameTextInputLayout = findViewById(R.id.TextInputLayout_addNew_name);
+        nameTextInputEditText = findViewById(R.id.TextInputEditText_addNew_name);
         timePicker = findViewById(R.id.timePicker);
         dayNumberPicker = findViewById(R.id.numberPicker_day);
         monthNumberPicker = findViewById(R.id.numberPicker_month);
@@ -67,7 +76,38 @@ public class AddActivity extends AppCompatActivity {
         monthNumberPicker.setMaxValue(12);
 
         //getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_close_white_24dp);
-        setTitle("Add New Birthday");
+        Intent intent = getIntent();
+        if(intent.hasExtra(EXTRA_ID)){
+            setTitle("Edit Birthday");
+
+            nameTextInputEditText.setText(intent.getStringExtra(EXTRA_NAME));
+            dayNumberPicker.setValue(intent.getIntExtra(EXTRA_DAY,1));
+            monthNumberPicker.setValue(intent.getIntExtra(EXTRA_MONTH,1));
+            notification = intent.getBooleanExtra(EXTRA_NOTIFICATION,true);
+            if(notification){
+                notificationRadioGroup.check(R.id.radioButton_addNew_on);
+            }else{
+                notificationRadioGroup.check(R.id.radioButton_addNew_off);
+            }
+            String time = intent.getStringExtra(EXTRA_TIME);
+            SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a");
+            Date date = null;
+            try {
+                date = sdf.parse(time);
+            } catch (ParseException e) { }
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date);
+            if (Build.VERSION.SDK_INT >= 23 ) {
+                timePicker.setHour(calendar.get(Calendar.HOUR));
+                timePicker.setMinute(calendar.get(Calendar.MINUTE));
+            }else{
+                timePicker.setCurrentHour(calendar.get(Calendar.HOUR_OF_DAY));
+                timePicker.setCurrentMinute(calendar.get(Calendar.MINUTE));
+            }
+
+        }else {
+            setTitle("Add New Birthday");
+        }
 
         timePicker.setIs24HourView(false);
     }
@@ -128,6 +168,11 @@ public class AddActivity extends AppCompatActivity {
             data.putExtra(EXTRA_NOTIFICATION, notification);
 
 
+            int id = getIntent().getIntExtra(EXTRA_ID, -1);
+            if (id != -1) {
+                data.putExtra(EXTRA_ID, id);
+            }
+
             setResult(RESULT_OK, data);
             finish();
         }
@@ -154,7 +199,7 @@ public class AddActivity extends AppCompatActivity {
     public void radioButtonClick(View view) {
         int radioId = notificationRadioGroup.getCheckedRadioButtonId();
         radioButton = findViewById(radioId);
-        if(radioButton.getText() == "ON"){
+        if(radioButton.getText().equals("ON")){
             notification = true;
         }
         else{

@@ -15,11 +15,33 @@ import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class BirthDateAdapter extends RecyclerView.Adapter<BirthDateAdapter.BirthDateHolder> {
-    private List<BirthDate> birthDates = new ArrayList<>();
+public class BirthDateAdapter extends ListAdapter<BirthDate,BirthDateAdapter.BirthDateHolder> {
+
     private OnItemClickListener listener;
+
+    public BirthDateAdapter() {
+        super(DIFF_CALLBACK);
+    }
+
+    private static final DiffUtil.ItemCallback<BirthDate> DIFF_CALLBACK = new DiffUtil.ItemCallback<BirthDate>() {
+        @Override
+        public boolean areItemsTheSame(@NonNull BirthDate oldItem, @NonNull BirthDate newItem) {
+            return oldItem.getId() == newItem.getId();
+        }
+
+        @Override
+        public boolean areContentsTheSame(@NonNull BirthDate oldItem, @NonNull BirthDate newItem) {
+            return oldItem.getName().equals(newItem.getName())&&
+                    oldItem.getTime().equals(newItem.getTime())&&
+                    oldItem.getDay() == newItem.getDay()&&
+                    oldItem.getMonth() == newItem.getMonth() &&
+                    oldItem.getNotification().equals(newItem.getNotification());
+        }
+    };
 
     @NonNull
     @Override
@@ -31,7 +53,7 @@ public class BirthDateAdapter extends RecyclerView.Adapter<BirthDateAdapter.Birt
 
     @Override
     public void onBindViewHolder(@NonNull BirthDateHolder holder, int position) {
-        BirthDate currentBirthDate = birthDates.get(position);
+        BirthDate currentBirthDate = getItem(position);
         holder.nametxt.setText(currentBirthDate.getName());
         holder.timetxt.setText(currentBirthDate.getTime());
         String date = (currentBirthDate.getDay())+"-"+(currentBirthDate.getMonth());
@@ -124,18 +146,9 @@ public class BirthDateAdapter extends RecyclerView.Adapter<BirthDateAdapter.Birt
         }
     }
 
-    @Override
-    public int getItemCount() {
-        return birthDates.size();
-    }
-
-    public void setBirthDates(List<BirthDate>birthDates){
-        this.birthDates = birthDates ;
-        notifyDataSetChanged();
-    }
 
     public BirthDate getBirthDateAt(int position) {
-        return birthDates.get(position);
+        return getItem(position);
     }
 
     class BirthDateHolder extends RecyclerView.ViewHolder{
@@ -159,7 +172,7 @@ public class BirthDateAdapter extends RecyclerView.Adapter<BirthDateAdapter.Birt
                 public void onClick(View view) {
                     int position = getAdapterPosition();
                     if(listener != null && position != RecyclerView.NO_POSITION) {
-                        listener.onItemClick(birthDates.get(position));
+                        listener.onItemClick(getItem(position));
                     }
                 }
             });

@@ -48,7 +48,7 @@ public class AddEditActivity extends AppCompatActivity {
     private NumberPicker dayNumberPicker,monthNumberPicker;
     private RadioGroup notificationRadioGroup;
     private RadioButton radioButton;
-    boolean notification = false;
+    boolean notification = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

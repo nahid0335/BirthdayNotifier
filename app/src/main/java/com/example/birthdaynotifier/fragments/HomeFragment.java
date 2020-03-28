@@ -61,7 +61,7 @@ public class HomeFragment extends Fragment {
             public void onChanged(@Nullable List<BirthDate> birthDates) {
                 //update RecyclerView
                 //Toast.makeText(getContext(),"update",Toast.LENGTH_LONG).show();
-                adapter.setBirthDates(birthDates);
+                adapter.submitList(birthDates);
                 //Toast.makeText(getContext(),"updatelater",Toast.LENGTH_LONG).show();
 
             }

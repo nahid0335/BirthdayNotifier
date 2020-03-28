@@ -24,6 +24,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 import static android.content.Intent.EXTRA_TITLE;
 
@@ -74,6 +75,11 @@ public class AddEditActivity extends AppCompatActivity {
         dayNumberPicker.setMaxValue(31);
         monthNumberPicker.setMinValue(1);
         monthNumberPicker.setMaxValue(12);
+        Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        int month = calendar.get(Calendar.MONTH)+1;
+        dayNumberPicker.setValue(day);
+        monthNumberPicker.setValue(month);
 
         //getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_close_white_24dp);
         Intent intent = getIntent();
@@ -95,15 +101,16 @@ public class AddEditActivity extends AppCompatActivity {
             try {
                 date = sdf.parse(time);
             } catch (ParseException e) { }
-            Calendar calendar = Calendar.getInstance();
             calendar.setTime(date);
             if (Build.VERSION.SDK_INT >= 23 ) {
-                timePicker.setHour(calendar.get(Calendar.HOUR));
+                timePicker.setHour(calendar.get(Calendar.HOUR_OF_DAY));
                 timePicker.setMinute(calendar.get(Calendar.MINUTE));
+
             }else{
                 timePicker.setCurrentHour(calendar.get(Calendar.HOUR_OF_DAY));
                 timePicker.setCurrentMinute(calendar.get(Calendar.MINUTE));
             }
+
 
         }else {
             setTitle("Add New Birthday");

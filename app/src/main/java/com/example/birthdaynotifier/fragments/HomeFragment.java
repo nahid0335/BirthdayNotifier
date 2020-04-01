@@ -1,10 +1,14 @@
 package com.example.birthdaynotifier.fragments;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.icu.util.LocaleData;
 import android.os.Bundle;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,10 +23,16 @@ import com.example.birthdaynotifier.AddEditActivity;
 import com.example.birthdaynotifier.BirthDate;
 import com.example.birthdaynotifier.R;
 import com.example.birthdaynotifier.ViewModel.BirthDateViewModel;
+import com.example.birthdaynotifier.notification.AlertReceiver;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -57,12 +67,7 @@ public class HomeFragment extends Fragment {
         final Spinner sortList = rootview.findViewById(R.id.spinner_mainHome_sortList);
 
         sharedpreferences = getContext().getSharedPreferences(sharedPreferenceKey, Context.MODE_PRIVATE);
-        if(!sharedpreferences.contains(sortTitle)){
-            //Toast.makeText(getContext(),"sharedpreference",Toast.LENGTH_LONG).show();
-            SharedPreferences.Editor editor = sharedpreferences.edit();
-            editor.putString(sortTitle, "Alphabetic");
-            editor.apply();
-        }
+
 
         addNewItem.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,7 +81,16 @@ public class HomeFragment extends Fragment {
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         sortList.setAdapter(spinnerAdapter);
 
-
+        if(!sharedpreferences.contains(sortTitle)){
+            //Toast.makeText(getContext(),"sharedpreference",Toast.LENGTH_LONG).show();
+            SharedPreferences.Editor editor = sharedpreferences.edit();
+            editor.putString(sortTitle, "Alphabetic");
+            editor.apply();
+            sortList.setSelection(spinnerAdapter.getPosition("Alphabetic"));
+        }else{
+            String sortListName = sharedpreferences.getString(sortTitle,null);
+            sortList.setSelection(spinnerAdapter.getPosition(sortListName));
+        }
 
         RecyclerView recyclerView = rootview.findViewById(R.id.recyclerView_home_container);
         recyclerView.setLayoutManager(new LinearLayoutManager(this.getActivity()));
@@ -189,6 +203,50 @@ public class HomeFragment extends Fragment {
                             public void onClick(DialogInterface dialog, int which) {
                                 birthDateViewModel.delete(adapter.getBirthDateAt(viewHolder.getAdapterPosition()));
                                 Toast.makeText(getContext(), "BirthDate deleted", Toast.LENGTH_SHORT).show();
+
+                                BirthDate birthDate = adapter.getBirthDateAt(viewHolder.getAdapterPosition());
+                                String time = birthDate.getTime();
+                                int month = birthDate.getMonth();
+                                int day = birthDate.getDay();
+                                String name = birthDate.getName();
+                                int id = birthDate.getId();
+
+                                SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a");
+                                Date date = null;
+                                try {
+                                    date = sdf.parse(time);
+                                } catch (ParseException e) { }
+
+                                Calendar calendar = Calendar.getInstance();
+                                int year;
+                                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                                    LocalDate currentDate = LocalDate.now();
+                                    year = currentDate.getYear();
+                                }else{
+                                    Date today = new Date();
+                                    Calendar cal = Calendar.getInstance();
+                                    cal.setTime(today);
+                                    year = cal.get(Calendar.DAY_OF_YEAR);
+                                }
+                                calendar.setTime(date);
+                                calendar.set(Calendar.YEAR, year);
+                                calendar.set(Calendar.MONTH,month-1);
+                                calendar.set(Calendar.DAY_OF_MONTH,day);
+                                calendar.set(Calendar.SECOND, 0);
+
+                                /*Toast.makeText(getContext(),calendar.get(Calendar.HOUR)+" : "+calendar.get(Calendar.MINUTE)+
+                                        " ( "+calendar.get(Calendar.YEAR)+" - "+calendar.get(Calendar.MONTH)+" - "+calendar.get(Calendar.DAY_OF_MONTH)+
+                                        " Date : "+calendar.get(Calendar.DATE)+" )",Toast.LENGTH_LONG ).show();*/
+
+                                AlarmManager alarmManager = (AlarmManager) getContext().getSystemService(Context.ALARM_SERVICE);
+                                Intent intent = new Intent(getContext(), AlertReceiver.class);
+                                intent.putExtra("message",name);
+                                PendingIntent pendingIntent = PendingIntent.getBroadcast(getContext(), id, intent, 0);
+
+                                alarmManager.cancel(pendingIntent);
+
+
+
                             }
                         })
                         .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
@@ -227,6 +285,7 @@ public class HomeFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == ADD_NEW_REQUEST && resultCode == RESULT_OK) {
+            int id = data.getIntExtra(AddEditActivity.EXTRA_ID, -1);
             String name = data.getStringExtra(AddEditActivity.EXTRA_NAME);
             String time = data.getStringExtra(AddEditActivity.EXTRA_TIME);
             int day = data.getIntExtra(AddEditActivity.EXTRA_DAY, 1);
@@ -235,6 +294,54 @@ public class HomeFragment extends Fragment {
 
             BirthDate birthDate = new BirthDate(name, time, day, month, notificatiion);
             birthDateViewModel.insert(birthDate);
+
+
+            if(notificatiion){
+                SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a");
+                Date date = null;
+                try {
+                    date = sdf.parse(time);
+                } catch (ParseException e) { }
+                Calendar calendar = Calendar.getInstance();
+                Calendar c = Calendar.getInstance();
+
+                int year;
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                    LocalDate currentDate = LocalDate.now();
+                    year = currentDate.getYear();
+                }else{
+                    Date today = new Date();
+                    Calendar cal = Calendar.getInstance();
+                    cal.setTime(today);
+                    year = cal.get(Calendar.YEAR);
+                }
+
+
+                calendar.setTime(date);
+                calendar.set(Calendar.YEAR,year);
+                calendar.set(Calendar.MONTH,month-1);
+                calendar.set(Calendar.DAY_OF_MONTH,day);
+                calendar.set(Calendar.SECOND, 0);
+
+                /*Toast.makeText(getContext(),calendar.get(Calendar.HOUR)+" : "+calendar.get(Calendar.MINUTE)+
+                        " ( "+calendar.get(Calendar.YEAR)+" - "+calendar.get(Calendar.MONTH)+" - "+calendar.get(Calendar.DAY_OF_MONTH)+
+                        " Date : "+calendar.get(Calendar.DATE)+" )",Toast.LENGTH_LONG ).show();*/
+
+                AlarmManager alarmManager = (AlarmManager) getContext().getSystemService(Context.ALARM_SERVICE);
+                Intent intent = new Intent(getContext(), AlertReceiver.class);
+                intent.putExtra("message",name);
+                intent.putExtra("Id",id);
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(getContext(), id, intent, 0);
+
+                c.setTime(new Date());
+                int numOfDays = c.getActualMaximum(Calendar.DAY_OF_YEAR);
+                if (calendar.before(Calendar.getInstance())) {
+                    calendar.add(Calendar.YEAR, 1);
+                }
+
+                alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,calendar.getTimeInMillis(), DateUtils.YEAR_IN_MILLIS,pendingIntent);
+
+            }
 
             Toast.makeText(getContext(), "BirthDay saved", Toast.LENGTH_SHORT).show();
         } else if (requestCode == EDIT_NEW_REQUEST && resultCode == RESULT_OK){
@@ -253,6 +360,91 @@ public class HomeFragment extends Fragment {
             BirthDate birthDate = new BirthDate(name, time, day, month, notificatiion);
             birthDate.setId(id);
             birthDateViewModel.update(birthDate);
+
+
+            if(notificatiion){
+                SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a");
+                Date date = null;
+                try {
+                    date = sdf.parse(time);
+                } catch (ParseException e) { }
+                Calendar calendar = Calendar.getInstance();
+                Calendar c = Calendar.getInstance();
+
+                int year;
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                    LocalDate currentDate = LocalDate.now();
+                    year = currentDate.getYear();
+                }else{
+                    Date today = new Date();
+                    Calendar cal = Calendar.getInstance();
+                    cal.setTime(today);
+                    year = cal.get(Calendar.YEAR);
+                }
+
+
+                calendar.setTime(date);
+                calendar.set(Calendar.YEAR,year);
+                calendar.set(Calendar.MONTH,month-1);
+                calendar.set(Calendar.DAY_OF_MONTH,day);
+                calendar.set(Calendar.SECOND, 0);
+
+                /*Toast.makeText(getContext(),calendar.get(Calendar.HOUR)+" : "+calendar.get(Calendar.MINUTE)+
+                        " ( "+calendar.get(Calendar.YEAR)+" - "+calendar.get(Calendar.MONTH)+" - "+calendar.get(Calendar.DAY_OF_MONTH)+
+                        " Date : "+calendar.get(Calendar.DATE)+" )",Toast.LENGTH_LONG ).show();*/
+
+                AlarmManager alarmManager = (AlarmManager) getContext().getSystemService(Context.ALARM_SERVICE);
+                Intent intent = new Intent(getContext(), AlertReceiver.class);
+                intent.putExtra("message",name);
+                intent.putExtra("Id",id);
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(getContext(), id, intent, 0);
+
+                c.setTime(new Date());
+                int numOfDays = c.getActualMaximum(Calendar.DAY_OF_YEAR);
+                if (calendar.before(Calendar.getInstance())) {
+                    calendar.add(Calendar.DATE, numOfDays);
+                }
+               // Toast.makeText(getContext(),numOfDays+" ",Toast.LENGTH_LONG).show();
+
+                alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP,calendar.getTimeInMillis(), DateUtils.YEAR_IN_MILLIS,pendingIntent);
+
+            }else{
+                SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a");
+                Date date = null;
+                try {
+                    date = sdf.parse(time);
+                } catch (ParseException e) { }
+
+                Calendar calendar = Calendar.getInstance();
+                int year;
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                    LocalDate currentDate = LocalDate.now();
+                    year = currentDate.getYear();
+                }else{
+                    Date today = new Date();
+                    Calendar cal = Calendar.getInstance();
+                    cal.setTime(today);
+                    year = cal.get(Calendar.DAY_OF_YEAR);
+                }
+                calendar.setTime(date);
+                calendar.set(Calendar.YEAR, year);
+                calendar.set(Calendar.MONTH,month-1);
+                calendar.set(Calendar.DAY_OF_MONTH,day);
+                calendar.set(Calendar.SECOND, 0);
+
+                /*Toast.makeText(getContext(),calendar.get(Calendar.HOUR)+" : "+calendar.get(Calendar.MINUTE)+
+                        " ( "+calendar.get(Calendar.YEAR)+" - "+calendar.get(Calendar.MONTH)+" - "+calendar.get(Calendar.DAY_OF_MONTH)+
+                        " Date : "+calendar.get(Calendar.DATE)+" )",Toast.LENGTH_LONG ).show();*/
+
+                AlarmManager alarmManager = (AlarmManager) getContext().getSystemService(Context.ALARM_SERVICE);
+                Intent intent = new Intent(getContext(), AlertReceiver.class);
+                intent.putExtra("message",name);
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(getContext(), id, intent, 0);
+
+                alarmManager.cancel(pendingIntent);
+
+            }
+
 
             Toast.makeText(getContext(), "BirthDay updated", Toast.LENGTH_SHORT).show();
         } else {

@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.birthdaynotifier">
 
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name='android.permission.WAKE_LOCK'/>
+
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -9,9 +13,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".AddEditActivity"
-            android:parentActivityName=".MainActivity"></activity>
-        <activity android:name=".MainActivity"
+        <activity
+            android:name=".AddEditActivity"
+            android:parentActivityName=".MainActivity" />
+        <activity
+            android:name=".MainActivity"
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -20,7 +26,21 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name=".notification.AlertReceiver" />
+        <receiver
+            android:name=".notification.AlertReceiver"
+            android:directBootAware="true"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <service
+            android:name=".notification.NotificationJobService"
+            android:label="Word service"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
     </application>
 
 </manifest>

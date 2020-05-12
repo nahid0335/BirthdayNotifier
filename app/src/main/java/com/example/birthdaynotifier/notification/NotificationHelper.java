@@ -51,8 +51,8 @@ public class NotificationHelper extends ContextWrapper {
                 .setContentTitle("Happy Birthday To ")
                 .setContentText(text)
                 .setSmallIcon(R.drawable.ic_notifications_black_24dp)
-                .setLargeIcon(BitmapFactory.decodeResource(getResources(),R.drawable.ic_launcher_foreground))
                 .setAutoCancel(true)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setCategory(NotificationCompat.CATEGORY_MESSAGE);
     }
 }

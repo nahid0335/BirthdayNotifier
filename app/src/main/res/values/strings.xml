@@ -11,7 +11,7 @@
     <string name="addNew_timeTitle">Select a Time :</string>
     <string name="addNew_DateTitle">Select a Date :</string>
     <string name="menuAddNew_save">Save</string>
-    <string name="recyclerView_dateTitle" >"Date : "</string>
+    <string name="recyclerView_dateTitle">"Date : "</string>
     <string name="recents_title">Upcoming Birthdates</string>
 
 

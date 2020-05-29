@@ -5,7 +5,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -14,19 +13,14 @@ import android.view.View;
 import android.widget.NumberPicker;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.TimePicker;
-import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
+import java.util.Objects;
 import java.util.TimeZone;
 
-import static android.content.Intent.EXTRA_TITLE;
 
 public class AddEditActivity extends AppCompatActivity {
 
@@ -34,8 +28,6 @@ public class AddEditActivity extends AppCompatActivity {
             "privateKeyofData.id";
     public static final String EXTRA_NAME =
             "privateKeyofData.name";
-    public static final String EXTRA_TIME =
-            "privateKeyofData.time";
     public static final String EXTRA_DAY =
             "privateKeyofData.day";
     public static final String EXTRA_MONTH =
@@ -44,11 +36,8 @@ public class AddEditActivity extends AppCompatActivity {
             "privateKeyofData.notification";
 
     private TextInputLayout nameTextInputLayout;
-    private TextInputEditText nameTextInputEditText;
-    private TimePicker timePicker;
     private NumberPicker dayNumberPicker,monthNumberPicker;
     private RadioGroup notificationRadioGroup;
-    private RadioButton radioButton;
     boolean notification = true;
 
     @Override
@@ -60,12 +49,12 @@ public class AddEditActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         ActionBar actionbar = getSupportActionBar ();
+        assert actionbar != null;
         actionbar.setDisplayHomeAsUpEnabled ( true );
         actionbar.setHomeAsUpIndicator ( R.drawable.ic_close_white_24dp );
 
         nameTextInputLayout = findViewById(R.id.TextInputLayout_addNew_name);
-        nameTextInputEditText = findViewById(R.id.TextInputEditText_addNew_name);
-        timePicker = findViewById(R.id.timePicker);
+        TextInputEditText nameTextInputEditText = findViewById(R.id.TextInputEditText_addNew_name);
         dayNumberPicker = findViewById(R.id.numberPicker_day);
         monthNumberPicker = findViewById(R.id.numberPicker_month);
         notificationRadioGroup = findViewById(R.id.radioGroup_addNew_Notification);
@@ -95,28 +84,9 @@ public class AddEditActivity extends AppCompatActivity {
             }else{
                 notificationRadioGroup.check(R.id.radioButton_addNew_off);
             }
-            String time = intent.getStringExtra(EXTRA_TIME);
-            SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a");
-            Date date = null;
-            try {
-                date = sdf.parse(time);
-            } catch (ParseException e) { }
-            calendar.setTime(date);
-            if (Build.VERSION.SDK_INT >= 23 ) {
-                timePicker.setHour(calendar.get(Calendar.HOUR_OF_DAY));
-                timePicker.setMinute(calendar.get(Calendar.MINUTE));
-
-            }else{
-                timePicker.setCurrentHour(calendar.get(Calendar.HOUR_OF_DAY));
-                timePicker.setCurrentMinute(calendar.get(Calendar.MINUTE));
-            }
-
-
         }else {
             setTitle("Add New Birthday");
         }
-
-        timePicker.setIs24HourView(false);
     }
 
     @Override
@@ -140,36 +110,14 @@ public class AddEditActivity extends AppCompatActivity {
 
 
     private void saveBirthday() {
-        if(!validName()) {
-            return;
-        }else{
-            String name = nameTextInputLayout.getEditText().getText().toString();
-            int hour, minute;
-            String am_pm;
-            if (Build.VERSION.SDK_INT >= 23 ){
-                hour = timePicker.getHour();
-                minute = timePicker.getMinute();
-            }
-            else{
-                hour = timePicker.getCurrentHour();
-                minute = timePicker.getCurrentMinute();
-            }
-            if(hour > 12) {
-                am_pm = "PM";
-                hour = hour - 12;
-            }
-            else
-            {
-                am_pm="AM";
-            }
-            String time = hour+":"+minute+" "+am_pm;
+        if(validName()) {
+            String name = Objects.requireNonNull(nameTextInputLayout.getEditText()).getText().toString();
             int day = dayNumberPicker.getValue();
             int month = monthNumberPicker.getValue();
 
 
             Intent data = new Intent();
             data.putExtra(EXTRA_NAME, name);
-            data.putExtra(EXTRA_TIME, time);
             data.putExtra(EXTRA_DAY, day);
             data.putExtra(EXTRA_MONTH, month);
             data.putExtra(EXTRA_NOTIFICATION, notification);
@@ -186,7 +134,7 @@ public class AddEditActivity extends AppCompatActivity {
     }
 
     private boolean validName(){
-        String usernameInput = nameTextInputLayout.getEditText().getText().toString().trim();
+        String usernameInput = Objects.requireNonNull(nameTextInputLayout.getEditText()).getText().toString().trim();
 
         if (usernameInput.isEmpty()) {
             nameTextInputLayout.setError("Field can't be empty !!");
@@ -205,12 +153,7 @@ public class AddEditActivity extends AppCompatActivity {
 
     public void radioButtonClick(View view) {
         int radioId = notificationRadioGroup.getCheckedRadioButtonId();
-        radioButton = findViewById(radioId);
-        if(radioButton.getText().equals("ON")){
-            notification = true;
-        }
-        else{
-            notification = false;
-        }
+        RadioButton radioButton = findViewById(radioId);
+        notification = radioButton.getText().equals("ON");
     }
 }

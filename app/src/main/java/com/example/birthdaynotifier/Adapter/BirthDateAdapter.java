@@ -36,7 +36,6 @@ public class BirthDateAdapter extends ListAdapter<BirthDate,BirthDateAdapter.Bir
         @Override
         public boolean areContentsTheSame(@NonNull BirthDate oldItem, @NonNull BirthDate newItem) {
             return oldItem.getName().equals(newItem.getName())&&
-                    oldItem.getTime().equals(newItem.getTime())&&
                     oldItem.getDay() == newItem.getDay()&&
                     oldItem.getMonth() == newItem.getMonth() &&
                     oldItem.getNotification().equals(newItem.getNotification());
@@ -55,7 +54,6 @@ public class BirthDateAdapter extends ListAdapter<BirthDate,BirthDateAdapter.Bir
     public void onBindViewHolder(@NonNull BirthDateHolder holder, int position) {
         BirthDate currentBirthDate = getItem(position);
         holder.nametxt.setText(currentBirthDate.getName());
-        holder.timetxt.setText(currentBirthDate.getTime());
         String date = (currentBirthDate.getDay())+"-"+(currentBirthDate.getMonth());
         holder.datetxt.setText(date);
         if(currentBirthDate.getNotification()){
@@ -153,7 +151,6 @@ public class BirthDateAdapter extends ListAdapter<BirthDate,BirthDateAdapter.Bir
 
     class BirthDateHolder extends RecyclerView.ViewHolder{
         private TextView nametxt;
-        private TextView timetxt;
         private TextView datetxt;
         private ImageView notificationimg;
         private ImageView firstlatterimg;
@@ -161,7 +158,6 @@ public class BirthDateAdapter extends ListAdapter<BirthDate,BirthDateAdapter.Bir
         public BirthDateHolder(@NonNull View itemView) {
             super(itemView);
             nametxt = itemView.findViewById(R.id.textView_recyclerViewHome_Name);
-            timetxt = itemView.findViewById(R.id.textView_recyclerViewHome_Time);
             datetxt = itemView.findViewById(R.id.textView_recyclerViewHome_Date);
             notificationimg = itemView.findViewById(R.id.imageView_recyclerViewHome_notificationIcon);
             firstlatterimg = itemView.findViewById(R.id.imageView_recyclerViewHome_firstLatter);

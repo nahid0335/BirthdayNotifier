@@ -7,19 +7,28 @@
 
     <TextView
         android:id="@+id/textView3"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="5dp"
+        android:layout_marginStart="5dp"
         android:elevation="5dp"
         android:text="@string/recyclerView_dateTitle"
         android:textAlignment="textEnd"
         android:textColor="#000000"
         android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="@+id/materialCardView"
-        app:layout_constraintEnd_toStartOf="@+id/textView_recyclerViewHome_Date"
-        app:layout_constraintStart_toEndOf="@+id/textView_recyclerViewHome_Time"
+        app:layout_constraintStart_toEndOf="@+id/imageView"
         app:layout_constraintTop_toBottomOf="@+id/textView_recyclerViewHome_Name" />
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:elevation="5dp"
+        app:layout_constraintBottom_toBottomOf="@+id/materialCardView"
+        app:layout_constraintStart_toEndOf="@+id/imageView_recyclerViewHome_firstLatter"
+        app:layout_constraintTop_toBottomOf="@+id/textView_recyclerViewHome_Name"
+        app:srcCompat="@drawable/ic_event_black_24dp" />
 
     <ImageView
         android:id="@+id/imageView_recyclerViewHome_firstLatter"
@@ -61,25 +70,9 @@
         app:layout_constraintTop_toTopOf="@+id/materialCardView" />
 
     <TextView
-        android:id="@+id/textView_recyclerViewHome_Time"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="5dp"
-        android:elevation="5dp"
-        android:paddingLeft="5dp"
-        android:paddingRight="5dp"
-        android:text="@string/recyclerview_demoTime"
-        android:textColor="#E8000000"
-        android:textSize="18sp"
-        app:layout_constraintBottom_toBottomOf="@+id/materialCardView"
-        app:layout_constraintStart_toEndOf="@+id/imageView_recyclerViewHome_firstLatter"
-        app:layout_constraintTop_toBottomOf="@+id/textView_recyclerViewHome_Name" />
-
-    <TextView
         android:id="@+id/textView_recyclerViewHome_Date"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="10dp"
         android:elevation="5dp"
         android:paddingLeft="5dp"
         android:paddingRight="5dp"
@@ -88,6 +81,7 @@
         android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="@+id/materialCardView"
         app:layout_constraintEnd_toStartOf="@+id/imageView_recyclerViewHome_notificationIcon"
+        app:layout_constraintStart_toEndOf="@+id/textView3"
         app:layout_constraintTop_toBottomOf="@+id/textView_recyclerViewHome_Name" />
 
     <com.google.android.material.card.MaterialCardView

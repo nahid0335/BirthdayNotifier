@@ -2,19 +2,14 @@ package com.example.birthdaynotifier.fragments;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
-import android.app.job.JobInfo;
-import android.app.job.JobScheduler;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.icu.util.LocaleData;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.PersistableBundle;
-import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,24 +22,22 @@ import android.widget.Toast;
 import com.example.birthdaynotifier.Adapter.BirthDateAdapter;
 import com.example.birthdaynotifier.AddEditActivity;
 import com.example.birthdaynotifier.BirthDate;
+import com.example.birthdaynotifier.BirthDateSQL;
+import com.example.birthdaynotifier.Database.BirthDateSQLDbHelper;
 import com.example.birthdaynotifier.R;
 import com.example.birthdaynotifier.ViewModel.BirthDateViewModel;
 import com.example.birthdaynotifier.notification.AlertReceiver;
-import com.example.birthdaynotifier.notification.NotificationJobService;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
@@ -54,18 +47,16 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import static android.app.Activity.RESULT_OK;
-import static android.content.Context.JOB_SCHEDULER_SERVICE;
 
 public class HomeFragment extends Fragment {
     private BirthDateViewModel birthDateViewModel;
-    public static final int ADD_NEW_REQUEST = 1;
-    public static final int EDIT_NEW_REQUEST = 2;
+    private static final int ADD_NEW_REQUEST = 1;
+    private static final int EDIT_NEW_REQUEST = 2;
 
 
-    SharedPreferences sharedpreferences;
-    public static final String sharedPreferenceKey = "BirthdatePrivateKey";
-    public static final String sortTitle = "sortTitleKey";
-
+    private SharedPreferences sharedpreferences;
+    private static final String sharedPreferenceKey = "BirthdatePrivateKey";
+    private static final String sortTitle = "sortTitleKey";
 
     @Nullable
     @Override
@@ -75,7 +66,7 @@ public class HomeFragment extends Fragment {
         ImageView addNewItem = rootview.findViewById(R.id.imageView_mainHome_add);
         final Spinner sortList = rootview.findViewById(R.id.spinner_mainHome_sortList);
 
-        sharedpreferences = getContext().getSharedPreferences(sharedPreferenceKey, Context.MODE_PRIVATE);
+        sharedpreferences = Objects.requireNonNull(getContext()).getSharedPreferences(sharedPreferenceKey, Context.MODE_PRIVATE);
 
 
         addNewItem.setOnClickListener(new View.OnClickListener() {
@@ -100,6 +91,10 @@ public class HomeFragment extends Fragment {
             String sortListName = sharedpreferences.getString(sortTitle,null);
             sortList.setSelection(spinnerAdapter.getPosition(sortListName));
         }
+        final BirthDateSQLDbHelper birthDateSQLDbHelper = BirthDateSQLDbHelper.getInstance(getContext());
+        //SQLiteDatabase sqLiteDatabase = birthDateSQLDbHelper.getWritableDatabase();
+
+        setAlarm();
 
         RecyclerView recyclerView = rootview.findViewById(R.id.recyclerView_home_container);
         recyclerView.setLayoutManager(new LinearLayoutManager(this.getActivity()));
@@ -115,6 +110,8 @@ public class HomeFragment extends Fragment {
                 //update RecyclerView
                 String sortListName = sharedpreferences.getString(sortTitle,null);
                 sortList.setSelection(spinnerAdapter.getPosition(sortListName));
+                assert sortListName != null;
+                assert birthDates != null;
                 if(sortListName.equals("Date")){
                     Collections.sort(birthDates, new Comparator<BirthDate>() {
                         @Override
@@ -151,7 +148,9 @@ public class HomeFragment extends Fragment {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 String selectedItem = adapterView.getItemAtPosition(i).toString();
-                List<BirthDate>birthDates = birthDateViewModel.getAllBirthDate().getValue();
+                List<BirthDate>birthDates;
+                birthDates = birthDateViewModel.getAllBirthDate().getValue();
+                assert birthDates != null;
                 SharedPreferences.Editor editor = sharedpreferences.edit();
                 if(selectedItem.equals("Date")){
                     editor.putString(sortTitle, "Date");
@@ -177,7 +176,7 @@ public class HomeFragment extends Fragment {
                     editor.putString(sortTitle, "Alphabetic");
                     editor.apply();
 
-                    if(!birthDates.isEmpty()) {
+                    if(birthDates.size()!=0) {
                         Collections.sort(birthDates, new Comparator<BirthDate>() {
                             @Override
                             public int compare(BirthDate birthDate, BirthDate t1) {
@@ -206,7 +205,7 @@ public class HomeFragment extends Fragment {
 
             @Override
             public void onSwiped(@NonNull final RecyclerView.ViewHolder viewHolder, int direction) {
-                new AlertDialog.Builder(getContext())
+                new AlertDialog.Builder(Objects.requireNonNull(getContext()))
                         .setTitle("Delete entry")
                         .setMessage("Are you sure you want to delete this entry?")
                         .setCancelable(false)
@@ -217,50 +216,7 @@ public class HomeFragment extends Fragment {
 
                                 BirthDate birthDate = adapter.getBirthDateAt(viewHolder.getAdapterPosition());
                                 int id = birthDate.getId();
-                                //String name = birthDate.getName();
-
-
-                                AlarmManager alarmManager = (AlarmManager) getContext().getSystemService(Context.ALARM_SERVICE);
-                                Intent intent = new Intent(getContext(), AlertReceiver.class);
-                                /*intent.putExtra("message",name);
-                                intent.putExtra("Id",id);*/
-                                PendingIntent pendingIntent = PendingIntent.getBroadcast(getContext(), id, intent, 0);
-
-                                alarmManager.cancel(pendingIntent);
-
-                                ComponentName receiver = new ComponentName(getContext(), AlertReceiver.class);
-                                PackageManager pm = getContext().getPackageManager();
-
-                                pm.setComponentEnabledSetting(receiver,
-                                        PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-                                        PackageManager.DONT_KILL_APP);
-
-
-                                /*for(int i=0;i<=20;i++){
-                                    int tempid = id;
-                                    tempid = Integer.parseInt((tempid)+"0000")+i;
-                                    AlarmManager alarmManager = (AlarmManager) getContext().getSystemService(Context.ALARM_SERVICE);
-                                    Intent intent = new Intent(getContext(), AlertReceiver.class);
-                                    intent.putExtra("message",name);
-                                    intent.putExtra("Id",tempid);
-                                    PendingIntent pendingIntent = PendingIntent.getBroadcast(getContext(), tempid, intent, 0);
-
-                                    alarmManager.cancel(pendingIntent);
-
-                                    ComponentName receiver = new ComponentName(getContext(), AlertReceiver.class);
-                                    PackageManager pm = getContext().getPackageManager();
-
-                                    pm.setComponentEnabledSetting(receiver,
-                                            PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-                                            PackageManager.DONT_KILL_APP);
-                                }*/
-
-                                /*if(isJobActive(getContext(),id)){
-                                    JobScheduler jobScheduler = (JobScheduler) getContext().getSystemService(JOB_SCHEDULER_SERVICE);
-                                    jobScheduler.cancel(id);
-                                }*/
-
-
+                                birthDateSQLDbHelper.deleteBirthDate(id);
                             }
                         })
                         .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
@@ -282,7 +238,6 @@ public class HomeFragment extends Fragment {
 
                 intent.putExtra(AddEditActivity.EXTRA_ID, birthDate.getId());
                 intent.putExtra(AddEditActivity.EXTRA_NAME, birthDate.getName());
-                intent.putExtra(AddEditActivity.EXTRA_TIME, birthDate.getTime());
                 intent.putExtra(AddEditActivity.EXTRA_DAY, birthDate.getDay());
                 intent.putExtra(AddEditActivity.EXTRA_MONTH, birthDate.getMonth());
                 intent.putExtra(AddEditActivity.EXTRA_NOTIFICATION, birthDate.getNotification());
@@ -294,131 +249,67 @@ public class HomeFragment extends Fragment {
         return rootview;
     }
 
+    private void setAlarm() {
+        Date today = new Date();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(today);
+        int month = calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        calendar.set(Calendar.MONTH, month);
+        calendar.set(Calendar.DAY_OF_MONTH, day);
+        calendar.set(Calendar.HOUR_OF_DAY,23);
+        calendar.set(Calendar.MINUTE,0);
+        calendar.set(Calendar.SECOND, 0);
+        if (calendar.before(Calendar.getInstance())) {
+            calendar.add(Calendar.DAY_OF_MONTH, 1);
+        }
+
+
+        AlarmManager alarmManager = (AlarmManager) Objects.requireNonNull(getContext()).getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(getContext(), AlertReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(getContext(), 1607005, intent, 0);
+
+        assert alarmManager != null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+        } else {
+            alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+        }
+        ComponentName receiver = new ComponentName(getContext(), AlertReceiver.class);
+        PackageManager pm = getContext().getPackageManager();
+
+        pm.setComponentEnabledSetting(receiver,
+                PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+                PackageManager.DONT_KILL_APP);
+    }
+
+
+
+
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
+        final BirthDateSQLDbHelper birthDateSQLDbHelper = BirthDateSQLDbHelper.getInstance(getContext());
         if (requestCode == ADD_NEW_REQUEST && resultCode == RESULT_OK) {
-            int id = data.getIntExtra(AddEditActivity.EXTRA_ID, -1);
+            //int id = data.getIntExtra(AddEditActivity.EXTRA_ID, -1);
             String name = data.getStringExtra(AddEditActivity.EXTRA_NAME);
-            String time = data.getStringExtra(AddEditActivity.EXTRA_TIME);
             int day = data.getIntExtra(AddEditActivity.EXTRA_DAY, 1);
             int month = data.getIntExtra(AddEditActivity.EXTRA_MONTH, 1);
-            boolean notificatiion = data.getBooleanExtra(AddEditActivity.EXTRA_NOTIFICATION,true);
+            boolean notification = data.getBooleanExtra(AddEditActivity.EXTRA_NOTIFICATION,true);
 
-            BirthDate birthDate = new BirthDate(name, time, day, month, notificatiion);
+            BirthDate birthDate = new BirthDate(name, day, month, notification);
             birthDateViewModel.insert(birthDate);
 
-
-            if(notificatiion){
-                SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a");
-                Date date = null;
-                try {
-                    date = sdf.parse(time);
-                } catch (ParseException e) { }
-                Calendar calendar = Calendar.getInstance();
-                Calendar currentTime = Calendar.getInstance();
-
-                int year;
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                    LocalDate currentDate = LocalDate.now();
-                    year = currentDate.getYear();
-                }else{
-                    Date today = new Date();
-                    Calendar cal = Calendar.getInstance();
-                    cal.setTime(today);
-                    year = cal.get(Calendar.YEAR);
-                }
-
-
-                calendar.setTime(date);
-                calendar.set(Calendar.YEAR,year);
-                calendar.set(Calendar.MONTH,month-1);
-                calendar.set(Calendar.DAY_OF_MONTH,day);
-                calendar.set(Calendar.SECOND, 0);
-
-                /*Toast.makeText(getContext(),calendar.get(Calendar.HOUR)+" : "+calendar.get(Calendar.MINUTE)+
-                        " ( "+calendar.get(Calendar.YEAR)+" - "+calendar.get(Calendar.MONTH)+" - "+calendar.get(Calendar.DAY_OF_MONTH)+
-                        " Date : "+calendar.get(Calendar.DATE)+" )",Toast.LENGTH_LONG ).show();*/
-
-                if (calendar.before(Calendar.getInstance())) {
-                    calendar.add(Calendar.YEAR, 1);
-                }
-
-
-                AlarmManager alarmManager = (AlarmManager) getContext().getSystemService(Context.ALARM_SERVICE);
-                Intent intent = new Intent(getContext(), AlertReceiver.class);
-                /*intent.putExtra("message",name);
-                intent.putExtra("Id",id);*/
-                PendingIntent pendingIntent = PendingIntent.getBroadcast(getContext(), id, intent, 0);
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
-                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                    alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
-                } else {
-                    alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
-                }
-                ComponentName receiver = new ComponentName(getContext(), AlertReceiver.class);
-                PackageManager pm = getContext().getPackageManager();
-
-                pm.setComponentEnabledSetting(receiver,
-                        PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
-                        PackageManager.DONT_KILL_APP);
-
-
-                /*for(int i=0;i<=20;i++){
-                    calendar.add(Calendar.YEAR,i);
-                    int tempid = id;
-                    tempid = Integer.parseInt((tempid)+"0000")+i;
-                    AlarmManager alarmManager = (AlarmManager) getContext().getSystemService(Context.ALARM_SERVICE);
-                    Intent intent = new Intent(getContext(), AlertReceiver.class);
-                    intent.putExtra("message",name);
-                    intent.putExtra("Id",tempid);
-                    PendingIntent pendingIntent = PendingIntent.getBroadcast(getContext(), tempid, intent, 0);
-
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
-                    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                        alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
-                    } else {
-                        alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
-                    }
-                    ComponentName receiver = new ComponentName(getContext(), AlertReceiver.class);
-                    PackageManager pm = getContext().getPackageManager();
-
-                    pm.setComponentEnabledSetting(receiver,
-                            PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
-                            PackageManager.DONT_KILL_APP);
-                }*/
-
-                /*long differenceInmillis = calendar.getTimeInMillis()-currentTime.getTimeInMillis();
-
-                PersistableBundle extras = new PersistableBundle();
-                extras.putInt("Id",id);
-                extras.putInt("Month",month);
-                extras.putInt("Day",day);
-                extras.putString("Message",name);
-                extras.putString("Time",time);
-                ComponentName componentName = new ComponentName(getContext(), NotificationJobService.class);
-                JobInfo jobInfo = new JobInfo.Builder(id, componentName)
-                        .setMinimumLatency(differenceInmillis)
-                        .setPersisted(true)
-                        .setOverrideDeadline(differenceInmillis+60*1000)
-                        .setExtras(extras)
-                        .build();
-                JobScheduler jobScheduler = (JobScheduler) getContext().getSystemService(JOB_SCHEDULER_SERVICE);
-                int resultCodeForJob = jobScheduler.schedule(jobInfo);
-                if(resultCodeForJob == JobScheduler.RESULT_SUCCESS){
-                    Toast.makeText(getContext(), "Job Schedule",Toast.LENGTH_LONG).show();
-                }else{
-                    Toast.makeText(getContext(), "Job Not Schedule",Toast.LENGTH_LONG).show();
-                }*/
-            }
+            int sqlnotification = (notification) ? 1 : 0;
+            BirthDateSQL birthDateSQL = new BirthDateSQL(name, day, month, sqlnotification);
+            birthDateSQLDbHelper.insertBirthDate(birthDateSQL);
 
             Toast.makeText(getContext(), "BirthDay saved", Toast.LENGTH_SHORT).show();
 
-        } else if (requestCode == EDIT_NEW_REQUEST && resultCode == RESULT_OK){
+        } else if (requestCode == EDIT_NEW_REQUEST && resultCode == RESULT_OK) {
             int id = data.getIntExtra(AddEditActivity.EXTRA_ID, -1);
 
             if (id == -1) {
@@ -426,186 +317,24 @@ public class HomeFragment extends Fragment {
                 return;
             }
             String name = data.getStringExtra(AddEditActivity.EXTRA_NAME);
-            String time = data.getStringExtra(AddEditActivity.EXTRA_TIME);
             int day = data.getIntExtra(AddEditActivity.EXTRA_DAY, 1);
             int month = data.getIntExtra(AddEditActivity.EXTRA_MONTH, 1);
-            boolean notificatiion = data.getBooleanExtra(AddEditActivity.EXTRA_NOTIFICATION,true);
+            boolean notification = data.getBooleanExtra(AddEditActivity.EXTRA_NOTIFICATION, true);
 
-            BirthDate birthDate = new BirthDate(name, time, day, month, notificatiion);
+            BirthDate birthDate = new BirthDate(name, day, month, notification);
             birthDate.setId(id);
             birthDateViewModel.update(birthDate);
 
+            int sqlnotification = (notification) ? 1 : 0;
 
-            if(notificatiion){
-                SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a");
-                Date date = null;
-                try {
-                    date = sdf.parse(time);
-                } catch (ParseException e) { }
-                Calendar calendar = Calendar.getInstance();
-                Calendar currentTime = Calendar.getInstance();
-
-                int year;
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                    LocalDate currentDate = LocalDate.now();
-                    year = currentDate.getYear();
-                }else{
-                    Date today = new Date();
-                    Calendar cal = Calendar.getInstance();
-                    cal.setTime(today);
-                    year = cal.get(Calendar.YEAR);
-                }
-
-
-                calendar.setTime(date);
-                calendar.set(Calendar.YEAR,year);
-                calendar.set(Calendar.MONTH,month-1);
-                calendar.set(Calendar.DAY_OF_MONTH,day);
-                calendar.set(Calendar.SECOND, 0);
-
-                /*Toast.makeText(getContext(),calendar.get(Calendar.HOUR)+" : "+calendar.get(Calendar.MINUTE)+
-                        " ( "+calendar.get(Calendar.YEAR)+" - "+calendar.get(Calendar.MONTH)+" - "+calendar.get(Calendar.DAY_OF_MONTH)+
-                        " Date : "+calendar.get(Calendar.DATE)+" )",Toast.LENGTH_LONG ).show();*/
-
-                if (calendar.before(Calendar.getInstance())) {
-                    calendar.add(Calendar.YEAR, 1);
-                }
-               // Toast.makeText(getContext(),numOfDays+" ",Toast.LENGTH_LONG).show();
-
-
-                AlarmManager alarmManager = (AlarmManager) getContext().getSystemService(Context.ALARM_SERVICE);
-                Intent intent = new Intent(getContext(), AlertReceiver.class);
-                /*intent.putExtra("message",name);
-                intent.putExtra("Id",id);*/
-                PendingIntent pendingIntent = PendingIntent.getBroadcast(getContext(), id, intent, 0);
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
-                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                    alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
-                } else {
-                    alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
-                }
-                ComponentName receiver = new ComponentName(getContext(), AlertReceiver.class);
-                PackageManager pm = getContext().getPackageManager();
-
-                pm.setComponentEnabledSetting(receiver,
-                        PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
-                        PackageManager.DONT_KILL_APP);
-
-
-                /*for(int i=0;i<=20;i++){
-                    calendar.add(Calendar.YEAR,i);
-                    int tempid = id;
-                    tempid = Integer.parseInt((tempid)+"0000")+i;
-                    AlarmManager alarmManager = (AlarmManager) getContext().getSystemService(Context.ALARM_SERVICE);
-                    Intent intent = new Intent(getContext(), AlertReceiver.class);
-                    intent.putExtra("message",name);
-                    intent.putExtra("Id",tempid);
-                    PendingIntent pendingIntent = PendingIntent.getBroadcast(getContext(), tempid, intent, 0);
-
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
-                    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                        alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
-                    } else {
-                        alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
-                    }
-
-                    ComponentName receiver = new ComponentName(getContext(), AlertReceiver.class);
-                    PackageManager pm = getContext().getPackageManager();
-
-                    pm.setComponentEnabledSetting(receiver,
-                            PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
-                            PackageManager.DONT_KILL_APP);
-                }*/
-
-
-                /*long differenceInmillis = calendar.getTimeInMillis()-currentTime.getTimeInMillis();
-
-                PersistableBundle extras = new PersistableBundle();
-                extras.putInt("Id",id);
-                extras.putInt("Month",month);
-                extras.putInt("Day",day);
-                extras.putString("Message",name);
-                extras.putString("Time",time);
-                ComponentName componentName = new ComponentName(getContext(), NotificationJobService.class);
-                JobInfo jobInfo = new JobInfo.Builder(id, componentName)
-                        .setMinimumLatency(differenceInmillis)
-                        .setPersisted(true)
-                        .setOverrideDeadline(differenceInmillis+60*1000)
-                        .setExtras(extras)
-                        .build();
-                JobScheduler jobScheduler = (JobScheduler) getContext().getSystemService(JOB_SCHEDULER_SERVICE);
-                int resultCodeForJob = jobScheduler.schedule(jobInfo);
-                if(resultCodeForJob == JobScheduler.RESULT_SUCCESS){
-                    Toast.makeText(getContext(), "Job Schedule",Toast.LENGTH_LONG).show();
-                }else{
-                    Toast.makeText(getContext(), "Job Not Schedule",Toast.LENGTH_LONG).show();
-                }*/
-
-
-            }else{
-
-
-                AlarmManager alarmManager = (AlarmManager) getContext().getSystemService(Context.ALARM_SERVICE);
-                Intent intent = new Intent(getContext(), AlertReceiver.class);
-                /*intent.putExtra("message",name);
-                intent.putExtra("Id",id);*/
-                PendingIntent pendingIntent = PendingIntent.getBroadcast(getContext(), id, intent, 0);
-
-                alarmManager.cancel(pendingIntent);
-
-                ComponentName receiver = new ComponentName(getContext(), AlertReceiver.class);
-                PackageManager pm = getContext().getPackageManager();
-
-                pm.setComponentEnabledSetting(receiver,
-                        PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-                        PackageManager.DONT_KILL_APP);
-
-
-                /*for(int i=0;i<=20;i++){
-                    int tempid = id;
-                    tempid = Integer.parseInt((tempid)+"0000")+i;
-                    AlarmManager alarmManager = (AlarmManager) getContext().getSystemService(Context.ALARM_SERVICE);
-                    Intent intent = new Intent(getContext(), AlertReceiver.class);
-                    intent.putExtra("message",name);
-                    intent.putExtra("Id",tempid);
-                    PendingIntent pendingIntent = PendingIntent.getBroadcast(getContext(), tempid, intent, 0);
-
-                    alarmManager.cancel(pendingIntent);
-
-                    ComponentName receiver = new ComponentName(getContext(), AlertReceiver.class);
-                    PackageManager pm = getContext().getPackageManager();
-
-                    pm.setComponentEnabledSetting(receiver,
-                            PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-                            PackageManager.DONT_KILL_APP);
-                }*/
-
-                /*if(isJobActive(getContext(),id)){
-                    JobScheduler jobScheduler = (JobScheduler) getContext().getSystemService(JOB_SCHEDULER_SERVICE);
-                    jobScheduler.cancel(id);
-                }*/
-            }
+            BirthDateSQL birthDateSQL = new BirthDateSQL(name, day, month, sqlnotification);
+            birthDate.setId(id);
+            birthDateSQLDbHelper.updateBirthDate(id, birthDateSQL);
             Toast.makeText(getContext(), "BirthDay updated", Toast.LENGTH_SHORT).show();
-        } else {
+
+        }else {
             Toast.makeText(getContext(), "Birthday not saved", Toast.LENGTH_SHORT).show();
         }
     }
-
-
-    /*@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public static boolean isJobActive(Context context, int jobId) {
-        JobScheduler scheduler = (JobScheduler) context.getSystemService(JOB_SCHEDULER_SERVICE);
-        boolean hasBeenScheduled = false;
-        for (JobInfo jobInfo : scheduler.getAllPendingJobs()) {
-            if (jobInfo.getId() == jobId) {
-                hasBeenScheduled = true;
-                break;
-            }
-        }
-        return hasBeenScheduled;
-    }*/
 
 }

@@ -3,12 +3,12 @@ package com.example.birthdaynotifier.Adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.example.birthdaynotifier.BirthDate;
+import com.example.birthdaynotifier.BirthDateSQL;
 import com.example.birthdaynotifier.R;
 
 import java.time.LocalDate;
@@ -18,44 +18,85 @@ import java.util.Date;
 import java.util.List;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.DiffUtil;
-import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class BirthDateAdapter extends ListAdapter<BirthDate,BirthDateAdapter.BirthDateHolder> {
+public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchViewHolder> implements Filterable {
+    private List<BirthDateSQL> birthDateList;
+    private List<BirthDateSQL> birthDateListFull;
 
-    private OnItemClickListener listener;
 
-    public BirthDateAdapter() {
-        super(DIFF_CALLBACK);
+    class SearchViewHolder extends RecyclerView.ViewHolder {
+        private TextView nametxt;
+        private TextView datetxt;
+        private ImageView notificationimg;
+        private ImageView firstlatterimg;
+        SearchViewHolder(View itemView) {
+            super(itemView);
+
+            nametxt = itemView.findViewById(R.id.textView_recyclerViewHome_Name);
+            datetxt = itemView.findViewById(R.id.textView_recyclerViewHome_Date);
+            notificationimg = itemView.findViewById(R.id.imageView_recyclerViewHome_notificationIcon);
+            firstlatterimg = itemView.findViewById(R.id.imageView_recyclerViewHome_firstLatter);
+        }
     }
 
-    private static final DiffUtil.ItemCallback<BirthDate> DIFF_CALLBACK = new DiffUtil.ItemCallback<BirthDate>() {
-        @Override
-        public boolean areItemsTheSame(@NonNull BirthDate oldItem, @NonNull BirthDate newItem) {
-            return oldItem.getId() == newItem.getId();
-        }
 
+
+    public SearchAdapter(List<BirthDateSQL> birthDates) {
+        this.birthDateList = birthDates;
+        birthDateListFull = new ArrayList<>(birthDates);
+    }
+
+
+
+    @Override
+    public Filter getFilter() {
+        return searchFilter;
+    }
+
+    private Filter searchFilter = new Filter() {
         @Override
-        public boolean areContentsTheSame(@NonNull BirthDate oldItem, @NonNull BirthDate newItem) {
-            return oldItem.getName().equals(newItem.getName())&&
-                    oldItem.getDay() == newItem.getDay()&&
-                    oldItem.getMonth() == newItem.getMonth() &&
-                    oldItem.getNotification().equals(newItem.getNotification());
+        protected FilterResults performFiltering(CharSequence constraint) {
+            List<BirthDateSQL> filteredList = new ArrayList<>();
+            if (constraint == null || constraint.length() == 0) {
+                filteredList.addAll(birthDateListFull);
+            } else {
+                String filterPattern = constraint.toString().toLowerCase().trim();
+                for (BirthDateSQL birthdate : birthDateListFull) {
+                    if (birthdate.getName().toLowerCase().contains(filterPattern)) {
+                        filteredList.add(birthdate);
+                    }
+                }
+            }
+            FilterResults results = new FilterResults();
+            results.values = filteredList;
+            return results;
+        }
+        @Override
+        protected void publishResults(CharSequence constraint, FilterResults results) {
+            birthDateList.clear();
+            birthDateList.addAll((List) results.values);
+            notifyDataSetChanged();
         }
     };
 
+
+
+
+
+
+
     @NonNull
     @Override
-    public BirthDateHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public SearchViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.recyclerview_home, parent, false);
-        return new BirthDateHolder(itemView);
+        return new SearchViewHolder(itemView);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull BirthDateHolder holder, int position) {
-        BirthDate currentBirthDate = getItem(position);
+    public void onBindViewHolder(@NonNull SearchAdapter.SearchViewHolder holder, int position) {
+        BirthDateSQL currentBirthDate = birthDateList.get(position);
         holder.nametxt.setText(currentBirthDate.getName());
 
 
@@ -91,8 +132,9 @@ public class BirthDateAdapter extends ListAdapter<BirthDate,BirthDateAdapter.Bir
         }
 
         String date = modifyDay+"-"+modifyMonth+"-"+year;
+
         holder.datetxt.setText(date);
-        if(currentBirthDate.getNotification()){
+        if(currentBirthDate.getNotification()==1){
             holder.notificationimg.setBackgroundResource(R.drawable.ic_notifications_black_24dp);
         }else{
             holder.notificationimg.setBackgroundResource(R.drawable.ic_notifications_off_shadow_24dp);
@@ -180,43 +222,8 @@ public class BirthDateAdapter extends ListAdapter<BirthDate,BirthDateAdapter.Bir
         }
     }
 
-
-    public BirthDate getBirthDateAt(int position) {
-        return getItem(position);
-    }
-
-    class BirthDateHolder extends RecyclerView.ViewHolder{
-        private TextView nametxt;
-        private TextView datetxt;
-        private ImageView notificationimg;
-        private ImageView firstlatterimg;
-
-        public BirthDateHolder(@NonNull View itemView) {
-            super(itemView);
-            nametxt = itemView.findViewById(R.id.textView_recyclerViewHome_Name);
-            datetxt = itemView.findViewById(R.id.textView_recyclerViewHome_Date);
-            notificationimg = itemView.findViewById(R.id.imageView_recyclerViewHome_notificationIcon);
-            firstlatterimg = itemView.findViewById(R.id.imageView_recyclerViewHome_firstLatter);
-
-
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    int position = getAdapterPosition();
-                    if(listener != null && position != RecyclerView.NO_POSITION) {
-                        listener.onItemClick(getItem(position));
-                    }
-                }
-            });
-        }
-    }
-
-
-    public interface OnItemClickListener {
-        void onItemClick(BirthDate birthDate);
-    }
-
-    public void setOnItemClickListener(OnItemClickListener listener){
-        this.listener = listener;
+    @Override
+    public int getItemCount() {
+        return birthDateList.size();
     }
 }

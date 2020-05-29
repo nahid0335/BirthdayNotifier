@@ -25,6 +25,7 @@ import com.example.birthdaynotifier.BirthDate;
 import com.example.birthdaynotifier.BirthDateSQL;
 import com.example.birthdaynotifier.Database.BirthDateSQLDbHelper;
 import com.example.birthdaynotifier.R;
+import com.example.birthdaynotifier.SearchActivity;
 import com.example.birthdaynotifier.ViewModel.BirthDateViewModel;
 import com.example.birthdaynotifier.notification.AlertReceiver;
 
@@ -64,6 +65,7 @@ public class HomeFragment extends Fragment {
         View rootview = inflater.inflate(R.layout.fragment_home, container, false);
 
         ImageView addNewItem = rootview.findViewById(R.id.imageView_mainHome_add);
+        ImageView searchButton = rootview.findViewById(R.id.imageView_mainHome_search);
         final Spinner sortList = rootview.findViewById(R.id.spinner_mainHome_sortList);
 
         sharedpreferences = Objects.requireNonNull(getContext()).getSharedPreferences(sharedPreferenceKey, Context.MODE_PRIVATE);
@@ -74,6 +76,14 @@ public class HomeFragment extends Fragment {
             public void onClick(View view) {
                 Intent intent = new Intent(getActivity(), AddEditActivity.class);
                 startActivityForResult(intent, ADD_NEW_REQUEST);
+            }
+        });
+
+        searchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getActivity(), SearchActivity.class);
+                startActivity(intent);
             }
         });
 
@@ -148,7 +158,7 @@ public class HomeFragment extends Fragment {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 String selectedItem = adapterView.getItemAtPosition(i).toString();
-                List<BirthDate>birthDates;
+                List<BirthDate>birthDates = new ArrayList<>();
                 birthDates = birthDateViewModel.getAllBirthDate().getValue();
                 assert birthDates != null;
                 SharedPreferences.Editor editor = sharedpreferences.edit();

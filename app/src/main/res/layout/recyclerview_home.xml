@@ -94,6 +94,7 @@
         android:elevation="4dp"
         app:cardCornerRadius="5dp"
         app:cardElevation="4dp"
+        android:theme="@style/Theme.MaterialComponents.Light"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">

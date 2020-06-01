@@ -13,6 +13,22 @@
     <string name="menuAddNew_save">Save</string>
     <string name="recyclerView_dateTitle">"Date : "</string>
     <string name="recents_title">Upcoming Birthdates</string>
+    <string name="settings_title">Settings</string>
+    <string name="settings_subtitleService">ONLINE SERVICES</string>
+    <string name="settings_loginTxt">Sign In</string>
+    <string name="settings_signInDetails">If you have already sign up , then sign in for online backup or restore .</string>
+    <string name="settings_emailHint">Email</string>
+    <string name="settings_passwordHint">Password</string>
+    <string name="settings_signUpTitle">Sign Up</string>
+    <string name="settings_signUpDetails">If you don\'t have account , then please sign up</string>
+    <string name="settings_signUpButton">Sign Up</string>
+    <string name="settings_forgetPasswordTitle">Forget Password</string>
+    <string name="settings_forgetPasswordDetails">if you forget your password , enter your email to reset it .</string>
+    <string name="settings_forgetPasswordButton">Done</string>
+    <string name="settings_subtitleDatabase">DATABASE</string>
+    <string name="settings_clearAllDataButton">Clear</string>
+    <string name="settings_clearAllDataDetails">Clear Data</string>
+    <string name="settings_clearAllDataSub">clear all the data from your local database .</string>
 
 
     <string-array name="mainHome_sortList">

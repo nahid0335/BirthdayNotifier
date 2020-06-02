@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "695254204892",
+    "firebase_url": "https://birthday-notifier-fc6f4.firebaseio.com",
+    "project_id": "birthday-notifier-fc6f4",
+    "storage_bucket": "birthday-notifier-fc6f4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:695254204892:android:607d2ac5a3d1c34debcf19",
+        "android_client_info": {
+          "package_name": "com.example.birthdaynotifier"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "695254204892-mc5an0tcbahji5qaj55f4jhj7fv4qb29.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.birthdaynotifier",
+            "certificate_hash": "2d551e6ad665f9c209ceccd97c2d892046c34e12"
+          }
+        },
+        {
+          "client_id": "695254204892-sid8cqe9693lnjshldl3ou369dmlbp3j.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAxpjvVmeJrL_wTQHyi6Lw_fXkJTM5QtJk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "695254204892-sid8cqe9693lnjshldl3ou369dmlbp3j.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -12,8 +12,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".SearchActivity"
-            android:theme="@style/ExtraTheme"></activity>
+        <activity android:name=".OnlineActivity"></activity>
+        <activity
+            android:name=".SearchActivity"
+            android:theme="@style/ExtraTheme" />
         <activity
             android:name=".AddEditActivity"
             android:parentActivityName=".MainActivity" />

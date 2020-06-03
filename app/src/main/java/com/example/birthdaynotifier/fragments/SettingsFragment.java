@@ -1,6 +1,7 @@
 package com.example.birthdaynotifier.fragments;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +10,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.birthdaynotifier.OnlineActivity;
 import com.example.birthdaynotifier.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -182,7 +184,9 @@ public class SettingsFragment extends Fragment {
                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                     progressBar.setVisibility(View.GONE);
                                     if(task.isSuccessful()){
-                                        Toast.makeText(getContext(),"Sign In successfully done !!",Toast.LENGTH_LONG).show();
+                                        //Toast.makeText(getContext(),"Sign In successfully done !!",Toast.LENGTH_LONG).show();
+                                        Intent intent = new Intent(getContext(), OnlineActivity.class);
+                                        startActivity(intent);
                                     }else{
                                         Toast.makeText(getContext(), Objects.requireNonNull(task.getException()).getMessage(),Toast.LENGTH_LONG).show();
                                     }

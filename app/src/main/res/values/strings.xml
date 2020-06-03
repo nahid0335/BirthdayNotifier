@@ -29,6 +29,16 @@
     <string name="settings_clearAllDataButton">Clear</string>
     <string name="settings_clearAllDataDetails">Clear Data</string>
     <string name="settings_clearAllDataSub">clear all the data from your local database .</string>
+    <string name="online_header">Online Services</string>
+    <string name="online_backupTitle">BACKUP</string>
+    <string name="online_backUp">"Can keep online backup "</string>
+    <string name="online_backup">Back Up</string>
+    <string name="online_email">Email :</string>
+    <string name="online_restoreTitle">RESTORE</string>
+    <string name="online_restore">Can restore the data which is backed up in online</string>
+    <string name="online_restoreButton">Restore</string>
+    <string name="online_clearDataTitle">CLEAN</string>
+    <string name="online_clearDataDetails">Clear all the data stored in online</string>
 
 
     <string-array name="mainHome_sortList">

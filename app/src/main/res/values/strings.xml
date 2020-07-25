@@ -39,6 +39,7 @@
     <string name="online_restoreButton">Restore</string>
     <string name="online_clearDataTitle">CLEAN</string>
     <string name="online_clearDataDetails">Clear all the data stored in online</string>
+    <string name="online_signOut">Sign Out</string>
 
 
     <string-array name="mainHome_sortList">

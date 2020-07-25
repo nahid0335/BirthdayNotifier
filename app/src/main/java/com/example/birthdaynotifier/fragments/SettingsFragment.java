@@ -10,15 +10,20 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.birthdaynotifier.AddEditActivity;
 import com.example.birthdaynotifier.OnlineActivity;
 import com.example.birthdaynotifier.R;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Objects;
 import java.util.concurrent.Executor;
@@ -37,6 +42,7 @@ public class SettingsFragment extends Fragment {
     ProgressBar progressBar;
 
     private FirebaseAuth mAuth;
+
 
     @Nullable
     @Override
@@ -175,7 +181,7 @@ public class SettingsFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 progressBar.setVisibility(View.VISIBLE);
-                String email = Objects.requireNonNull(signInEmailET.getText()).toString().trim();
+                final String email = Objects.requireNonNull(signInEmailET.getText()).toString().trim();
                 String password = Objects.requireNonNull(signInPasswordET.getText()).toString().trim();
                 if(isSignInValid()){
                     mAuth.signInWithEmailAndPassword(email,password)
@@ -184,8 +190,11 @@ public class SettingsFragment extends Fragment {
                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                     progressBar.setVisibility(View.GONE);
                                     if(task.isSuccessful()){
+                                        FirebaseUser firebaseUser = mAuth.getCurrentUser();
                                         //Toast.makeText(getContext(),"Sign In successfully done !!",Toast.LENGTH_LONG).show();
                                         Intent intent = new Intent(getContext(), OnlineActivity.class);
+                                        intent.putExtra(OnlineActivity.FIREBASE_USER, firebaseUser);
+                                        intent.putExtra(OnlineActivity.FIREBASE_Email, email);
                                         startActivity(intent);
                                     }else{
                                         Toast.makeText(getContext(), Objects.requireNonNull(task.getException()).getMessage(),Toast.LENGTH_LONG).show();

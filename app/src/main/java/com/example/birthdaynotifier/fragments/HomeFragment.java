@@ -87,7 +87,8 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        final ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(getContext(),R.array.mainHome_sortList,android.R.layout.simple_spinner_item);
+        final ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(getContext(),
+                R.array.mainHome_sortList,android.R.layout.simple_spinner_item);
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         sortList.setAdapter(spinnerAdapter);
 

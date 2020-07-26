@@ -131,6 +131,12 @@ public class BirthDateSQLDbHelper extends SQLiteOpenHelper {
                 BirthDateTable._ID + "=" + id, null);
     }
 
+    public void deleteAllBirthDate() {
+        db = this.getWritableDatabase();
+        db.delete(BirthDateTable.TABLE_NAME,
+                null, null);
+    }
+
     public void updateBirthDate(long birthDateId, BirthDateSQL birthDate) {
         db = this.getWritableDatabase();
         //you can use the constants above instead of typing the column names

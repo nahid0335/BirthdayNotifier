@@ -11,8 +11,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.birthdaynotifier.AddEditActivity;
+import com.example.birthdaynotifier.Database.BirthDateSQLDbHelper;
 import com.example.birthdaynotifier.OnlineActivity;
 import com.example.birthdaynotifier.R;
+import com.example.birthdaynotifier.ViewModel.BirthDateViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -31,6 +33,7 @@ import java.util.concurrent.Executor;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProviders;
 
 public class SettingsFragment extends Fragment {
     boolean signInClick = false;
@@ -42,6 +45,7 @@ public class SettingsFragment extends Fragment {
     ProgressBar progressBar;
 
     private FirebaseAuth mAuth;
+    private BirthDateViewModel birthDateViewModel;
 
 
     @Nullable
@@ -258,6 +262,22 @@ public class SettingsFragment extends Fragment {
             }
         });
 
+
+        clearDataButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                progressBar.setVisibility(View.VISIBLE);
+                final BirthDateSQLDbHelper birthDateSQLDbHelper = BirthDateSQLDbHelper.getInstance(getContext());
+                birthDateViewModel = ViewModelProviders.of(SettingsFragment.this).get(BirthDateViewModel.class);
+
+                birthDateViewModel.deleteAllBirthDate();
+                birthDateSQLDbHelper.deleteAllBirthDate();
+
+                Toast.makeText(getContext(),"All data of Local database has been deleted .. !!",Toast.LENGTH_LONG).show();
+
+                progressBar.setVisibility(View.GONE);
+            }
+        });
 
 
         return rootView;

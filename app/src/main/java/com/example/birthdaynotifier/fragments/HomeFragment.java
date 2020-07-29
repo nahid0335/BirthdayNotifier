@@ -187,7 +187,7 @@ public class HomeFragment extends Fragment {
                     editor.putString(sortTitle, "Alphabetic");
                     editor.apply();
 
-                    if(birthDates.size()!=0) {
+                    if(birthDates != null) {
                         Collections.sort(birthDates, new Comparator<BirthDate>() {
                             @Override
                             public int compare(BirthDate birthDate, BirthDate t1) {

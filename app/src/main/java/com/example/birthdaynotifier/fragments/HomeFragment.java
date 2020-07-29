@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -66,11 +67,13 @@ public class HomeFragment extends Fragment {
 
         ImageView addNewItem = rootview.findViewById(R.id.imageView_mainHome_add);
         ImageView searchButton = rootview.findViewById(R.id.imageView_mainHome_search);
+        final ProgressBar progressBar = rootview.findViewById(R.id.progressBar_homeFragment);
         final Spinner sortList = rootview.findViewById(R.id.spinner_mainHome_sortList);
 
         sharedpreferences = Objects.requireNonNull(getContext()).getSharedPreferences(sharedPreferenceKey, Context.MODE_PRIVATE);
 
 
+        //----------------------------topber button ---------------------------------
         addNewItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -86,12 +89,18 @@ public class HomeFragment extends Fragment {
                 startActivity(intent);
             }
         });
+        //----------------------------topber button---------------------------------
 
+
+        //----------------------------spinner inisialization---------------------------------
         final ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(getContext(),
                 R.array.mainHome_sortList,android.R.layout.simple_spinner_item);
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         sortList.setAdapter(spinnerAdapter);
+        //----------------------------spinner inisialization---------------------------------
 
+
+        //----------------------------spinner set---------------------------------
         if(!sharedpreferences.contains(sortTitle)){
             //Toast.makeText(getContext(),"sharedpreference",Toast.LENGTH_LONG).show();
             SharedPreferences.Editor editor = sharedpreferences.edit();
@@ -102,22 +111,33 @@ public class HomeFragment extends Fragment {
             String sortListName = sharedpreferences.getString(sortTitle,null);
             sortList.setSelection(spinnerAdapter.getPosition(sortListName));
         }
+        //----------------------------spinner set---------------------------------
+
+
+        //----------------------------SQL database inisialization---------------------------------
         final BirthDateSQLDbHelper birthDateSQLDbHelper = BirthDateSQLDbHelper.getInstance(getContext());
         //SQLiteDatabase sqLiteDatabase = birthDateSQLDbHelper.getWritableDatabase();
+        //----------------------------SQL database inisialization---------------------------------
+
 
         setAlarm();
 
+        //----------------------------recycleview inisialization---------------------------------
         RecyclerView recyclerView = rootview.findViewById(R.id.recyclerView_home_container);
         recyclerView.setLayoutManager(new LinearLayoutManager(this.getActivity()));
         recyclerView.setHasFixedSize(true);
 
         final BirthDateAdapter adapter = new BirthDateAdapter();
         recyclerView.setAdapter(adapter);
+        //----------------------------recycleview inisialization---------------------------------
 
+
+        //----------------------------viewmodel inisialization---------------------------------
         birthDateViewModel = ViewModelProviders.of(this).get(BirthDateViewModel.class);
         birthDateViewModel.getAllBirthDate().observe(getViewLifecycleOwner(), new Observer<List<BirthDate>>() {
             @Override
             public void onChanged(@Nullable List<BirthDate> birthDates) {
+                progressBar.setVisibility(View.VISIBLE);
                 //update RecyclerView
                 String sortListName = sharedpreferences.getString(sortTitle,null);
                 sortList.setSelection(spinnerAdapter.getPosition(sortListName));
@@ -150,16 +170,20 @@ public class HomeFragment extends Fragment {
                 }
                 adapter.submitList(birthDates);
 
+                progressBar.setVisibility(View.GONE);
+
             }
         });
-        //Toast.makeText(getContext(),"home",Toast.LENGTH_LONG).show();
+        //----------------------------viewmodel inisialization---------------------------------
 
 
         sortList.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+
+                progressBar.setVisibility(View.VISIBLE);
                 String selectedItem = adapterView.getItemAtPosition(i).toString();
-                List<BirthDate>birthDates = new ArrayList<>();
+                List<BirthDate>birthDates;
                 birthDates = birthDateViewModel.getAllBirthDate().getValue();
                 assert birthDates != null;
                 SharedPreferences.Editor editor = sharedpreferences.edit();
@@ -186,18 +210,16 @@ public class HomeFragment extends Fragment {
                 }else{
                     editor.putString(sortTitle, "Alphabetic");
                     editor.apply();
-
-                    if(birthDates != null) {
-                        Collections.sort(birthDates, new Comparator<BirthDate>() {
+                    Collections.sort(birthDates, new Comparator<BirthDate>() {
                             @Override
                             public int compare(BirthDate birthDate, BirthDate t1) {
                                 return birthDate.getName().compareToIgnoreCase(t1.getName());
                             }
-                        });
-                    }
+                    });
                 }
                 adapter.submitList(birthDates);
                 adapter.notifyDataSetChanged();
+                progressBar.setVisibility(View.GONE);
             }
 
             @Override

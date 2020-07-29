@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 import com.example.birthdaynotifier.Adapter.BirthDateAdapter;
 import com.example.birthdaynotifier.BirthDate;
@@ -31,6 +32,7 @@ public class RecentsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_recents, container, false);
+        final ProgressBar progressBar = rootView.findViewById(R.id.progressBar_recentFragment);
 
         RecyclerView recyclerView = rootView.findViewById(R.id.recyclerView_recents_item);
         recyclerView.setLayoutManager(new LinearLayoutManager(this.getActivity()));
@@ -44,7 +46,7 @@ public class RecentsFragment extends Fragment {
             @Override
             public void onChanged(@Nullable List<BirthDate> birthDates) {
                 //update RecyclerView
-
+                progressBar.setVisibility(View.VISIBLE);
                 Collections.sort(birthDates, new Comparator<BirthDate>() {
                     @Override
                     public int compare(BirthDate t1, BirthDate t2) {
@@ -89,6 +91,7 @@ public class RecentsFragment extends Fragment {
                 }
 
                 adapter.submitList(futureBirthDates);
+                progressBar.setVisibility(View.GONE);
 
             }
         });

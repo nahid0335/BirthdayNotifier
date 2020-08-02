@@ -39,6 +39,8 @@ public class SettingsFragment extends Fragment {
     boolean signInClick = false;
     boolean signUpClick = false;
     boolean forgetPasswordClick = false;
+    boolean aboutClick = false;
+    boolean contactusClick = false;
 
     TextInputEditText signInEmailET,signInPasswordET,signUpEmailET,signUpPasswordET,forgetPasswordET;
     TextInputLayout signInEmail, signInPassword,signUpEmail,signUpPassword,forgetPasswordEmail;
@@ -61,6 +63,8 @@ public class SettingsFragment extends Fragment {
         final TextView signInTextView = rootView.findViewById(R.id.textView_settings_signinTitle);
         final TextView signUpTextView = rootView.findViewById(R.id.textView_settings_signUpTitle);
         final TextView forgetPasswordTextView = rootView.findViewById(R.id.textView_settings_forgetPasswordTitle);
+        final TextView aboutTextView = rootView.findViewById(R.id.textView_settings_about);
+        final TextView contactusTextView = rootView.findViewById(R.id.textView_settings_contactusTitle);
 
         final TextView signInButton = rootView.findViewById(R.id.textView_settings_signIn);
         final TextView signUpButton = rootView.findViewById(R.id.textView_settings_signUp);
@@ -76,6 +80,8 @@ public class SettingsFragment extends Fragment {
         final TextView subtitle1 = rootView.findViewById(R.id.textView_settings_signinDetails);
         final TextView subtitle2 = rootView.findViewById(R.id.textView_settings_signinDetails2);
         final TextView subtitle3 = rootView.findViewById(R.id.textView_settings_signinDetails3);
+        final TextView subtitle4 = rootView.findViewById(R.id.textView_settings_aboutDetails);
+        final TextView subtitle5 = rootView.findViewById(R.id.textView_settings_contactusDetails);
 
         signInEmailET = rootView.findViewById(R.id.textInputEditText_settings_signInEmail);
         signInPasswordET = rootView.findViewById(R.id.textInputEditText_settings_signInPassword);
@@ -87,6 +93,8 @@ public class SettingsFragment extends Fragment {
         signInTextView.setCompoundDrawablesWithIntrinsicBounds(0,0,R.drawable.ic_baseline_keyboard_arrow_up_24,0);
         signUpTextView.setCompoundDrawablesWithIntrinsicBounds(0,0,R.drawable.ic_baseline_keyboard_arrow_up_24,0);
         forgetPasswordTextView.setCompoundDrawablesWithIntrinsicBounds(0,0,R.drawable.ic_baseline_keyboard_arrow_up_24,0);
+        aboutTextView.setCompoundDrawablesWithIntrinsicBounds(0,0,R.drawable.ic_baseline_keyboard_arrow_up_24,0);
+        contactusTextView.setCompoundDrawablesWithIntrinsicBounds(0,0,R.drawable.ic_baseline_keyboard_arrow_up_24,0);
 
         subtitle1.setVisibility(View.GONE);
         signInEmail.setVisibility(View.GONE);
@@ -102,6 +110,9 @@ public class SettingsFragment extends Fragment {
         subtitle3.setVisibility(View.GONE);
         forgetPasswordEmail.setVisibility(View.GONE);
         forgetPasswordButton.setVisibility(View.GONE);
+
+        subtitle4.setVisibility(View.GONE);
+        subtitle5.setVisibility(View.GONE);
 
 
         signInTextView.setOnClickListener(new View.OnClickListener() {
@@ -176,6 +187,40 @@ public class SettingsFragment extends Fragment {
                     forgetPasswordButton.setVisibility(View.VISIBLE);
 
                     forgetPasswordClick = true;
+                }
+            }
+        });
+
+        aboutTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(aboutClick){
+                    aboutTextView.setCompoundDrawablesWithIntrinsicBounds(0,0,R.drawable.ic_baseline_keyboard_arrow_up_24,0);
+                    subtitle4.setVisibility(View.GONE);
+
+                    aboutClick = false;
+                }else{
+                    aboutTextView.setCompoundDrawablesWithIntrinsicBounds(0,0,R.drawable.ic_baseline_keyboard_arrow_down_24,0);
+                    subtitle4.setVisibility(View.VISIBLE);
+
+                    aboutClick = true;
+                }
+            }
+        });
+
+        contactusTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(contactusClick){
+                    contactusTextView.setCompoundDrawablesWithIntrinsicBounds(0,0,R.drawable.ic_baseline_keyboard_arrow_up_24,0);
+                    subtitle5.setVisibility(View.GONE);
+
+                    contactusClick = false;
+                }else{
+                    contactusTextView.setCompoundDrawablesWithIntrinsicBounds(0,0,R.drawable.ic_baseline_keyboard_arrow_down_24,0);
+                    subtitle5.setVisibility(View.VISIBLE);
+
+                    contactusClick = true;
                 }
             }
         });

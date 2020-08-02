@@ -40,6 +40,16 @@
     <string name="online_clearDataTitle">CLEAN</string>
     <string name="online_clearDataDetails">Clear all the data stored in online</string>
     <string name="online_signOut">Sign Out</string>
+    <string name="addNew_detailsOfTimePicker">Set the Day and Month of the birthday . It will fire up every year so don\'t need year .</string>
+    <string name="addNew_detailisOfNotification">Set the notification to get notification in previous day of the birthdate at 11 PM .</string>
+    <string name="settings_titleOfHelp">HELP</string>
+    <string name="settings_aboutTitle">About</string>
+    <string name="settings_aboutDetails">This app helps you to remember the Date you fixed every year once .
+        \n\nThe notification will show in the previous day at 11 PM .
+        \n\nThis app can store data locally and online .
+        \n\nTo backup or restore you have to signup then signin using proper working e-mail .</string>
+    <string name="settings_contactUsTitle">Contact us</string>
+    <string name="settings_contactUsDetails">If you have any inquiry or face any problem , you can contact via e-mail . \n\nE-mail : nahid0335@gmail.com</string>
 
 
     <string-array name="mainHome_sortList">
